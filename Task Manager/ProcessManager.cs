@@ -48,5 +48,13 @@ namespace Task_Manager
 
             return list;
         }
+
+        public static void Terminate(string process)
+        {
+            var proc = System.Diagnostics.Process.GetProcessesByName(process);
+
+            if (proc != null)
+                proc[0].Kill();
+        }
     }
 }

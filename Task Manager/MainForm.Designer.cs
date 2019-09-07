@@ -87,6 +87,7 @@
             this.metroGrid1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.metroGrid1.Size = new System.Drawing.Size(343, 563);
             this.metroGrid1.TabIndex = 0;
+            this.metroGrid1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MetroGrid1_MouseClick);
             // 
             // ProcessName
             // 

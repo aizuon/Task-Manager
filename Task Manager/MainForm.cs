@@ -1,10 +1,20 @@
-﻿using MetroFramework.Forms;
+﻿using MetroFramework.Controls;
+using MetroFramework.Forms;
+using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Task_Manager
 {
     public partial class MainForm : MetroForm
     {
+        public static string LastProcess;
+
+        [DllImport("user32.dll")]
+        private static extern long LockWindowUpdate(long Handle);
+
         public MainForm()
         {
             InitializeComponent();
@@ -20,12 +30,39 @@ namespace Task_Manager
             {
                 var list = ProcessManager.GetProcesses();
 
+                this.Invoke(() => LockWindowUpdate(this.Handle.ToInt64()));
                 metroGrid1.Invoke(() => metroGrid1.Rows.Clear());
                 foreach (var p in list)
                     metroGrid1.Invoke(() => metroGrid1.Rows.Add(p.Name, p.CPU, p.Memory));
 
                 metroGrid1.Invoke(() => metroGrid1.Sort(metroGrid1.Columns["CPU"], ListSortDirection.Descending));
+                this.Invoke(() => LockWindowUpdate(0));
             }
+        }
+
+        private void MetroGrid1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var m = new MetroContextMenu(metroGrid1.Container);
+                var terminate = new ToolStripMenuItem();
+                terminate.Text = "Terminate";
+                terminate.Click += TerminateToolStripMenuItem_Click;
+                m.Items.Add(terminate);
+
+                var test = metroGrid1.HitTest(e.X, e.Y);
+
+                if (test.RowIndex >= 0)
+                    LastProcess = metroGrid1.Rows[test.RowIndex].Cells["ProcessName"].Value.ToString();
+
+                m.Show(metroGrid1, new Point(e.X, e.Y));
+
+            }
+        }
+
+        private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessManager.Terminate(LastProcess);
         }
     }
 }
