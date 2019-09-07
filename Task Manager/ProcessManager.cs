@@ -8,7 +8,7 @@ namespace Task_Manager
 {
     public static class ProcessManager
     {
-        public static ushort Sleep = 1000;
+        public static ushort Interval = 1000;
 
         public static List<Process> GetProcesses()
         {
@@ -30,7 +30,7 @@ namespace Task_Manager
                 }
             }
 
-            Thread.Sleep(Sleep);
+            Thread.Sleep(Interval);
 
             var list = new List<Process>();
 

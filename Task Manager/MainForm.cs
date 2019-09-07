@@ -13,7 +13,7 @@ namespace Task_Manager
         public static string LastProcess;
 
         [DllImport("user32.dll")]
-        private static extern long LockWindowUpdate(long Handle);
+        private static extern long LockWindowUpdate(long handle);
 
         public MainForm()
         {
@@ -30,7 +30,7 @@ namespace Task_Manager
             {
                 var list = ProcessManager.GetProcesses();
 
-                this.Invoke(() => LockWindowUpdate(this.Handle.ToInt64()));
+                this.Invoke(() => LockWindowUpdate(Handle.ToInt64()));
                 metroGrid1.Invoke(() => metroGrid1.Rows.Clear());
                 foreach (var p in list)
                     metroGrid1.Invoke(() => metroGrid1.Rows.Add(p.Name, p.CPU, p.Memory));
@@ -63,6 +63,50 @@ namespace Task_Manager
         private void TerminateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ProcessManager.Terminate(LastProcess);
+        }
+
+        private void RefreshRateButton_Click(object sender, EventArgs e)
+        {
+            var m = new MetroContextMenu(refreshRateButton.Container);
+            var fast = new ToolStripMenuItem();
+            fast.Text = "Fast (0.5s)";
+            fast.Click += FastToolStripMenuItem_Click;
+
+            var normal = new ToolStripMenuItem();
+            normal.Text = "Normal (1s)";
+            normal.Click += NormalToolStripMenuItem_Click;
+
+            var slow = new ToolStripMenuItem();
+            slow.Text = "Slow (2s)";
+            slow.Click += SlowToolStripMenuItem_Click;
+
+            if (ProcessManager.Interval == 500)
+                fast.Checked = true;
+            else if (ProcessManager.Interval == 1000)
+                normal.Checked = true;
+            else
+                slow.Checked = true;
+
+            m.Items.Add(fast);
+            m.Items.Add(normal);
+            m.Items.Add(slow);
+
+            m.Show(metroGrid1, new Point(refreshRateButton.Width, refreshRateButton.Height));
+        }
+
+        private void FastToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessManager.Interval = 500;
+        }
+
+        private void NormalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessManager.Interval = 1000;
+        }
+
+        private void SlowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessManager.Interval = 2000;
         }
     }
 }
